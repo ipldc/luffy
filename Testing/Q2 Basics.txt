@@ -1,40 +1,20 @@
-package com.example;
+package com.selatest;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.junit.Test;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import io.github.bonigarcia.wdm.WebDriverManager;
+import org.testng.annotations.Test;
+
 public class AppTest {
-    public static WebDriver driver;
     @Test
     public void shouldAnswerWithTrue() throws MalformedURLException, InterruptedException {
-        WebDriverManager.chromedriver().setup();
-        WebDriver driver = new ChromeDriver();
-        driver.get("https://www.shoppersstop.com");
-        Thread.sleep(8000);
+        ChromeOptions co = new ChromeOptions();
+        RemoteWebDriver driver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), co);
+        driver.get("http://www.google.com");
+
+        Thread.sleep(5000);
+        driver.get("https://www.shoppersstop.com/");
         driver.findElement(By.className("user-icon")).click();
-        driver.manage().window().maximize();
-        driver.navigate().to("https://www.google.com");
-        driver.navigate().back();
-        driver.close();
-    }
-}
---------------------------------------------------------------------------------------------
-pom.xml dependencies
-
-<dependency>
-    <groupId>org.testng</groupId>
-    <artifactId>testng</artifactId>
-   <version>7.10.2</version>
-   <scope>test</scope>
-</dependency>
-
-<dependency>
-  <groupId>org.seleniumhq.selenium</groupId>
- <artifactId>selenium-java</artifactId>
-<version>4.20.0</version>
-</dependency>
