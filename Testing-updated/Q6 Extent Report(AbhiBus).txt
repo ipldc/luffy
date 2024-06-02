@@ -115,3 +115,27 @@ public class Test_abhibus  extends Base{
 
 	
 	}
+
+Logger Handler:
+
+package utils;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+public class LoggerHandler {
+    private static boolean isConfigured = false;
+
+    public static Logger getLogger() {
+        if (!isConfigured) {
+            configureLogger();
+            isConfigured = true;
+        }
+        return Logger.getLogger(LoggerHandler.class);
+    }
+
+    private static void configureLogger() {
+        String log4jConfigFile = System.getProperty("user.dir") + "/config/log4j.properties";
+        PropertyConfigurator.configure(log4jConfigFile);
+    }
+}
