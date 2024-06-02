@@ -1,200 +1,117 @@
 package Test_Abhibus;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Duration;
 
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.events.EventFiringDecorator;
 import org.openqa.selenium.support.events.WebDriverListener;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.aventstack.extentreports.ExtentReports;
-import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.Status;
-import com.aventstack.extentreports.reporter.ExtentSparkReporter;
-import com.aventstack.extentreports.reporter.ExtentReporter;
-
-
+import utils.Base;
 import utils.EventHandler;
 import utils.Reporter;
 import utils.Screenshot;
 
-public class Test_abhibus {
+public class Test_abhibus  extends Base{
 	public static WebDriver driver;
-	private static ExtentReports report;
-	private ExtentTest test;
+	private String url = "https://www.abhibus.com/";
+
 	Screenshot ss;
 
-
-	@BeforeClass
-	public void report()
-	{
-		report = new ExtentReports();
-		ExtentSparkReporter spark = new ExtentSparkReporter("/home/coder/project/workspace/Project/Reports/abhibus.html");
-		report.attachReporter(spark);
-	
-	}
-
-	    
-
+	Reporter rr;
 	
  @BeforeMethod
     public WebDriver beforeMethod() throws MalformedURLException {
 		ChromeOptions chromeOptions = new ChromeOptions();
 		driver = new RemoteWebDriver(new URL("http://localhost:4444/"), chromeOptions);
 		driver.get("https://www.abhibus.com/");
-		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+		// driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(PAGE_LOAD_TIME));
 		WebDriverListener listener = new EventHandler();
 		driver = new EventFiringDecorator<>(listener).decorate(driver);
 		return driver;
         
     }
+	@Test
+     public void testCase1() throws Exception
+     {
+		
+        Thread.sleep(5000);
 
-	@Test(priority = 1)
-	public void test1() throws InterruptedException, MalformedURLException, IOException
-	{
-		test = report.createTest("Test Case 1 ", "Verify error message ");
+        WebElement train = driver.findElement(By.xpath("/html/body/header/div/div[2]/div/nav/a[2]"));
+        train.click();
+        
+        Thread.sleep(3000);
 
-		driver.findElement(By.xpath("/html/body/header/div/div[2]/div/nav/a[2]")).click();
-		Thread.sleep(1000);
+        if(driver.getCurrentUrl().contains("trains"))
+        {
+            System.out.println("Name Verified");
+			ss.getScreenShot(driver, "Name.png");
+        }
 
-		driver.findElement(By.xpath("/html/body/div/div[1]/div/div[1]/a/img")).click();
-		Thread.sleep(1000);
+        WebElement logo = driver.findElement(By.xpath("/html/body/div/div[1]/div/div[1]/a/img"));
+        logo.click();
 
-		driver.findElement(By.xpath("/html/body/header/div/div[3]/div/nav/a[3]")).click();
-		Thread.sleep(1000);
+        Thread.sleep(3000);
 
-		captureScreenshot("/home/coder/project/workspace/Project/src/Screenshot/test1");
-
-		if(driver.findElement(By.xpath("/html/body/div[2]/div[2]/div/div/div[2]/div/div[1]/div/div/div[1]/h4")).getText().equals("Login to AbhiBus"))
-		{
-			System.out.println("Navigation Successful");
-			ss.getScreenShot(driver, "TestCase1.png");
-			
+        WebElement login = driver.findElement(By.xpath("/html/body/header/div/div[3]/div/nav/a[3]/span[2]"));
+        login.click();
 
 
-		}
-		else
-		{
-			System.out.println("Navigation Unsuccessful");
-		}
+        if(driver.findElement(By.xpath("/html/body/div[2]/div[2]/div/div/div[2]/div/div[1]/div/div/div[1]/h4")).getText().contains("Login to AbhiBus"))
+        {
+            System.out.println("login verified");
+			ss.getScreenShot(driver, "Login.png");
+        }
+     
 
-	}
-	@Test(priority = 2)
-	public void test2() throws InterruptedException,  IOException
-	{
-		Thread.sleep(3000);
-		WebElement from = driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div/div[2]/input"));
-		//from.sendKeys("Mumbai");
-		FileInputStream fs = new FileInputStream("/home/coder/project/workspace/Project/testdata/Testdata.xlsx");
-		XSSFWorkbook w = new XSSFWorkbook(fs);
-		XSSFSheet s = w.getSheetAt(0);
-		XSSFRow r = s.getRow(0);
-		String fromwhere = r.getCell(0).getStringCellValue();
-		from.sendKeys(fromwhere);
-		Thread.sleep(1000);
+		driver.navigate().to(url);
+        Thread.sleep(5000);
 
-		WebElement to = driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[3]/div/div/div/div/div[2]/input"));
-		// to.sendKeys("Pune");
-		FileInputStream fss = new FileInputStream("/home/coder/project/workspace/Project/testdata/Testdata.xlsx");
-		XSSFWorkbook ws = new XSSFWorkbook(fss);
-		XSSFSheet ss = ws.getSheetAt(0);
-		XSSFRow rs = ss.getRow(0);
-		String towhere = rs.getCell(1).getStringCellValue();
-		to.sendKeys(towhere);
-		Thread.sleep(3000);
+        WebElement from = driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div/div[2]/input"));
+        from.sendKeys("Mumbai" + Keys.RETURN);
+        
+        WebElement to = driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[3]/div/div/div/div/div[2]/input"));
+        to.sendKeys("Pune" + Keys.RETURN);
 
-		driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[4]/div/div/div/div[3]/button[1]")).click();
-		Thread.sleep(1000);
+        WebElement search = driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[5]/button"));
+        search.click();
 
-		driver.findElement(By.xpath("/html/body/main/div[1]/div[1]/div[2]/div/div[5]/button")).click();
-		Thread.sleep(1000);
-	}
-	@Test(priority = 3)
-	public void test3() throws InterruptedException, MalformedURLException, IOException
-	{
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript("window.scrollBy(0,550)","");
-		Thread.sleep(1000);
+        Thread.sleep(2000);
 
-		driver.findElement(By.xpath("/html/body/footer/div/div[2]/div/div/div[1]/div/div/div/div/button[5]")).click();
-		Thread.sleep(1000);
+        String urlVerify = driver.getCurrentUrl();
 
-		driver.findElement(By.xpath("/html/body/footer/div/div[2]/div/div/div[2]/div/div/div/div[7]/a")).click();
-		Thread.sleep(1000);
+        if(urlVerify.contains("Mumbai") && urlVerify.contains("Pune"))
+        {
+            System.out.println("Cities verified");
+			ss.getScreenShot(driver, "urlVerify.png");
+        }
 
-		captureScreenshot("/home/coder/project/workspace/Project/src/Screenshot/test3");
+     
+		driver.navigate().to(url);
+        Thread.sleep(5000);
 
-		if(driver.findElement(By.xpath("/html/body/div[4]/div[1]/div[1]/h2")).getText().equals("Media"))
-		{
-			System.out.println("Navigation Successful");
-		}
-		else
-		{
-			System.out.println("Navigation Unsuccessful");
-		}
-	}
+        WebElement links =  driver.findElement(By.xpath("/html/body/footer/div/div[2]/div/div/div[1]/div/div/div/div/button[5]"));
+        links.click();
 
-	@AfterMethod
-	public void quit()
-	{
-		driver.quit();
-	}
+        WebElement news  = driver.findElement(By.xpath("/html/body/footer/div/div[2]/div/div/div[2]/div/div/div/div[7]/a"));
+        news.click();
 
-	private void captureScreenshot(String fileName) throws IOException, NullPointerException {
-        TakesScreenshot screenshot = (TakesScreenshot) driver;
-        File screenshotFile = screenshot.getScreenshotAs(OutputType.FILE);
-        org.apache.commons.io.FileUtils.copyFile(screenshotFile, new File(fileName + ".png"));
-        test.log(Status.INFO, "Screenshot captured: " + test.addScreenCaptureFromPath(fileName + ".png"));
-    }
+        Thread.sleep(3000);
+
+        if(driver.findElement(By.xpath("/html/body/div[4]/div[1]/div[1]/h2")).getText().contains("Media"))
+        {
+            System.out.println("Head verified");
+			ss.getScreenShot(driver, "head.png");
+        }
+		rr.generateExtentReport("extent-report");
+     }
 
 	
-}
-
-
-loggerhandler:(inside the util package)
-
-package utils;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-
-public class LoggerHandler {
-    private static boolean isConfigured = false;
-
-    public static Logger getLogger() {
-        if (!isConfigured) {
-            configureLogger();
-            isConfigured = true;
-        }
-        return Logger.getLogger(LoggerHandler.class);
-    }
-
-    private static void configureLogger() {
-        String log4jConfigFile = System.getProperty("user.dir") + "/config/log4j.properties";
-        PropertyConfigurator.configure(log4jConfigFile);
-    }
-}
-
-
-Excel:
-
-Mumbai Pune
+	}
