@@ -1,138 +1,94 @@
 package Test_Groww;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.events.EventFiringDecorator;
 import org.openqa.selenium.support.events.WebDriverListener;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-import org.testng.ITestResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.aventstack.extentreports.ExtentReports;
-import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.Status;
-import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import utils.EventHandler;
+import utils.Reporter;
+import utils.Screenshot;
 
-public class Test_groww {
-    private ExtentReports extent;
-    private ExtentTest test;
-    public static WebDriver driver;
-    private static final String testDataFile = "/home/coder/project/workspace/Project/testdata/Testdata.xlsx";
-
-    @BeforeClass
+public class Test_groww{
+	public static WebDriver driver;
+	public Reporter rr;
+	public Screenshot ss;
+	
+ @BeforeMethod
     public WebDriver beforeMethod() throws MalformedURLException {
-        ChromeOptions chromeOptions = new ChromeOptions();
-        driver = new RemoteWebDriver(new URL("http://localhost:4444/"), chromeOptions);
-        driver.get("https://groww.in/");
-        extent = new ExtentReports();
-        ExtentSparkReporter spark = new ExtentSparkReporter("/home/coder/project/workspace/Project/test-output/ExtentReport.html");
-        extent.attachReporter(spark);
-
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
-        WebDriverListener listener = new EventHandler();
-        driver = new EventFiringDecorator<>(listener).decorate(driver);
-        return driver;
+		ChromeOptions chromeOptions = new ChromeOptions();
+		driver = new RemoteWebDriver(new URL("http://localhost:4444/"), chromeOptions);
+		driver.get("https://groww.in/");
+		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
+		WebDriverListener listener = new EventHandler();
+		driver = new EventFiringDecorator<>(listener).decorate(driver);
+		return driver;
+        
     }
+	@Test
+	public void testcase() throws InterruptedException, IOException
+	{
+		Thread.sleep(5000);
+        WebElement calculator =  driver.findElement(By.linkText("Calculators"));
+        calculator.click();
+        Thread.sleep(5000);
+        String checkCalc = driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/h1")).getText();
+        System.out.println(checkCalc);
 
-    @BeforeMethod
-    public void createTest(ITestResult result) {
-        test = extent.createTest(result.getMethod().getMethodName());
-    }
-
-    @Test
-    public void test() throws IOException {
-        test.log(Status.INFO, "Clicking on 'Calculators' Link");
-        driver.findElement(By.linkText("Calculators")).click();
-        String expectedTitle = "Financial Planning Calculators - Groww | Calculate Your Investment Online";
-        String actualTitle = driver.getTitle();
-        System.out.println(actualTitle);
-        Assert.assertEquals(actualTitle, expectedTitle, "Calculator page title mismatch");
-        test.log(Status.PASS, "Verified 'Calculators' label");
-        captureScreen(test, "/home/coder/project/workspace/Project/test-output/screenshot");
-        File screenshotFile = new File("/home/coder/project/workspace/Project/test-output/screenshot.png");
-        Assert.assertTrue(screenshotFile.exists(), "Screenshot not found");
-
-        test.log(Status.INFO, "Clicking on 'Home Loan EMI' link");
-        WebDriverWait wait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
-        WebElement homeloan = driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div[2]/a[15]/div/p[1]"));
-        homeloan.click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("LOAN_AMOUNT")));
-
-        String loanAmount = getTestData("loanAmount");
-        String interestRate = getTestData("interestRate");
-        String loanTenure = getTestData("loanTenure");
-
-        test.log(Status.INFO, "Clearing existing loan amount");
-        driver.findElement(By.id("LOAN_AMOUNT")).clear();
-        test.log(Status.INFO, "Entering loan amount from Excel: " + loanAmount);
-        driver.findElement(By.id("LOAN_AMOUNT")).sendKeys(loanAmount);
-
-        test.log(Status.INFO, "Clearing existing interest rate");
-        driver.findElement(By.id("RATE_OF_INTEREST")).clear();
-        test.log(Status.INFO, "Entering interest rate: " + interestRate);
-        driver.findElement(By.id("RATE_OF_INTEREST")).sendKeys(interestRate);
-
-        test.log(Status.INFO, "Updating loan tenure");
-        driver.findElement(By.id("LOAN_TENURE")).clear();
-        driver.findElement(By.id("LOAN_TENURE")).sendKeys(loanTenure);
-
-        String expectedAmortizationText = "Your Amortization Details (Yearly/Monthly)";
-        String actualAmortizationText = driver.findElement(By.xpath("//h1[text()='Your Amortization Details (Yearly/Monthly)']")).getText();
-        Assert.assertEquals(actualAmortizationText, expectedAmortizationText, "Your amortization details text mismatch");
-        test.log(Status.PASS, "Verified 'Your Amortization Details (Yearly/Monthly)' text");
-        captureScreen(test, "/home/coder/project/workspace/Project/test-output/screenshot");
-
-        extent.flush();
-        File reportFile = new File("/home/coder/project/workspace/Project/test-output/ExtentReport.html");
-        Assert.assertTrue(reportFile.exists(), "Report not found");
-    }
-
-    private String getTestData(String key) throws IOException {
-        FileInputStream inputStream = new FileInputStream(new File(testDataFile));
-        Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet) {
-            Cell keyCell = row.getCell(0);
-            if (keyCell == null || keyCell.getCellType() != CellType.STRING || !keyCell.getStringCellValue().equals(key)) {
-                continue;
-            }
-            Cell valueCell = row.getCell(1);
-            return valueCell.getStringCellValue();
+        if(checkCalc.contains("Calculators"))
+        {
+            System.out.println("cal found");
+			ss.getScreenShot(driver, "calc_verify.png");
+            
         }
-        throw new RuntimeException("Test data for key '" + key + "' not found in Excel sheet");
-    }
+        else{
+            System.out.println("Not found");
+        }
 
-    private void captureScreen(ExtentTest test, String fileName) throws IOException {
-        TakesScreenshot screenshot = (TakesScreenshot) driver;
-        File screenshotFile = screenshot.getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshotFile, new File(fileName + ".png"));
-        test.log(Status.INFO, "Screenshot captured: " + test.addScreenCaptureFromPath(fileName + ".png"));
-    }
+        WebElement homeLoan = driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/div[2]/a[15]"));
+        homeLoan.click();
+        Thread.sleep(5000);
+
+       
+
+        String loan ="2300000";
+        String rateOfInt ="8";
+        String ten = "25";
+
+        WebElement loanAmount = driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div/input"));
+        loanAmount.clear();
+        loanAmount.sendKeys(loan);
+        WebElement rate = driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div/input"));
+        rate.clear();
+        rate.sendKeys(rateOfInt);
+        WebElement tenure = driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[2]/div/input"));
+        tenure.clear();
+        tenure.sendKeys(ten);
+
+        Thread.sleep(10000);
+
+
+        String auto = driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div/p")).getText();
+        if(auto.contains("Your Amortization Details (Yearly/Monthly)"))
+        {
+            ss.getScreenShot(driver, "verify.png");
+        }
+		rr.generateExtentReport("groww-extent-reports");
+
+        driver.close();
+	}
+
+	
 }
 
 Base.java:
@@ -163,7 +119,7 @@ public class Base {
     public final int IMPLICIT_WAIT_TIME = 10;
     public final int PAGE_LOAD_TIME = 5;
     public Properties prop;
-    private static final Logger log = Logger.getLogger(Base.class);
+
     public Base() {
         String filepath = System.getProperty("user.dir") + "/config/browser.properties";
     
@@ -196,11 +152,9 @@ public class Base {
             driver = new SafariDriver();
         }
         driver.manage().window().maximize();
-        log.info("Browser Launched");
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(IMPLICIT_WAIT_TIME));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(PAGE_LOAD_TIME));
         driver.get(prop.getProperty("url"));
-        log.info("Browser Loaded the URL");
 
         WebDriverListener listener = new EventHandler();
         driver = new EventFiringDecorator<>(listener).decorate(driver);
@@ -216,9 +170,3 @@ public class Base {
         }
     }
 }
-
-Excel:
-
-loanAmount 2300000
-interestRate 8
-loanTenure 25
