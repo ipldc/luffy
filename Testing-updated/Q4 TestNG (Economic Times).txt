@@ -116,3 +116,94 @@ public class TestEconomic {
         driver.quit();
     }
 }
+
+
+
+Money Control:
+
+package com.cse
+
+
+import java.io.IOException;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.annotations.Test;
+
+public class AppTest 
+{
+    @Test
+    public void TestLocator() throws InterruptedException, IOException
+    {
+        String bravePath = "C:/Users/suren/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe";
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary(bravePath);
+
+        WebDriver driver = new ChromeDriver(options);
+
+        driver.get("https://www.moneycontrol.com");
+
+        Thread.sleep(10000);
+
+        WebElement searchBox = driver.findElement(By.id("search_str"));
+        searchBox.click();
+
+        searchBox.sendKeys("Reliance Industries" + Keys.RETURN);
+
+        Thread.sleep(10000);
+
+        WebElement suggestion = driver.findElement(By.xpath("//ul[@class='suggestion-list']/li[1]/a"));
+        suggestion.click();
+
+        
+        boolean isPresent = driver.getPageSource().contains("Reliance Industries Ltd.");
+        System.out.println("Is 'Reliance Industries Ltd.' present on the page? " + isPresent);
+
+        
+        WebElement mutualFundsDropdown = driver.findElement(By.xpath("//a[text()='Mutual Funds']"));
+        mutualFundsDropdown.click();
+        WebElement sipReturnOption = driver.findElement(By.xpath("//a[text()='SIP Returns']"));
+        sipReturnOption.click();
+
+        
+        WebElement selectFund = driver.findElement(By.xpath("//a[@data-name='axis-mutual-fund']"));
+        selectFund.click();
+
+        
+        WebElement schemeDropdown = driver.findElement(By.xpath("//select[@id='selectScheme']"));
+        schemeDropdown.sendKeys("Axis Arbitrage Fund Regular Plan (D)");
+
+        
+        WebElement investmentAmount = driver.findElement(By.id("amount"));
+        investmentAmount.sendKeys("100000");
+
+       
+        WebElement sipFrequency = driver.findElement(By.xpath("//select[@id='sipTenure']/option[text()='Monthly']"));
+        sipFrequency.click();
+
+        
+        WebElement startDate = driver.findElement(By.id("startDate"));
+        startDate.sendKeys("2021-08-02");
+        WebElement endDate = driver.findElement(By.id("endDate"));
+        endDate.sendKeys("2023-08-17");
+
+       
+        WebElement calculateButton = driver.findElement(By.id("calculate"));
+        calculateButton.click();
+
+      
+        WebElement investmentPeriod = driver.findElement(By.xpath("//table[@id='sip_calc_table']/tbody/tr[2]/td[2]"));
+        WebElement totalAmountInvested = driver.findElement(By.xpath("//table[@id='sip_calc_table']/tbody/tr[3]/td[2]"));
+        System.out.println("Investment Period: " + investmentPeriod.getText());
+        System.out.println("Total Amount Invested: " + totalAmountInvested.getText());
+
+       
+        driver.quit();
+        
+    }
+}
