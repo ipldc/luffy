@@ -195,10 +195,10 @@ def mul(arr1, arr2):
     k = len(arr2)
     arr = [] 
     for i in range(n):
-        roy = []
+        temp = []
         for j in range(m):
-            roy.append(0)
-        arr.append(roy)
+            temp.append(0)
+        arr.append(temp)
            
     for i in range(len(arr1)):
         for j in range(len(arr2[0])):
