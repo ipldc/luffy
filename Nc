@@ -1,0 +1,479 @@
+3 a)Bit Stuffing:
+
+import java.util.*;
+class BitStuff{
+    public static void main(String[] args){
+        Scanner sc=new Scanner(System.in);
+        System.out.println("Enter the bits:");
+        String s=sc.nextLine();
+        String res=bitstuffing(s);
+        System.out.println("Original Data Stream:");
+        System.out.println(s);
+        System.out.println("Bitstuffed Data Stream:");
+        System.out.println(res);
+    }
+    public static String bitstuffing(String s){
+        StringBuilder sb=new StringBuilder();
+        int count=0;
+        for(int i=0;i<s.length();i++){
+            char bit=s.charAt(i);
+            sb.append(bit);
+            if(bit=='1'){
+                count++;
+            }else{
+                count=0;
+            }
+            if(count==5){
+                sb.append('0');
+                count=0;
+            }
+        }
+        return sb.toString();
+    }
+}
+
+
+3 b)Character Stuffing:
+
+import java.util.*;
+class CharStuff{
+    public static void main(String[] args){
+        Scanner sc=new Scanner(System.in);
+        System.out.println("Enter the number of Characters:");
+        int n=sc.nextInt();
+        System.out.println("Enter the characters:");
+        String arr[]=new String[n];
+        for(int i=0;i<n;i++){
+            arr[i]=sc.next();
+        }
+        for(int i=0;i<n;i++){
+            if(arr[i].equals("dle")){
+                arr[i]="dle dle";
+            }
+        }
+        System.out.println("Transmitted message is: ");
+        System.out.print("dle stx ");
+        for(int i=0;i<n;i++){
+            System.out.print(arr[i]+" ");
+        }
+        System.out.print("dle etx");
+    }
+}
+
+
+
+4)SLIDING WINDOW
+
+Server.java
+import java.io.*;
+import java.net.*;
+
+class swserver {
+    public static void main(String args[]) {
+        try {
+            ServerSocket server = new ServerSocket(1234);
+            System.out.println("Running");
+
+            while (true) {
+                Socket client = server.accept();
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                PrintWriter out = new PrintWriter(client.getOutputStream(), true);
+
+                String re;
+                while ((re = in.readLine()) != null) {
+                    System.out.println("received: " + re);
+                    out.println("Response to: " + re); // Send response back to the client
+                }
+
+                client.close();
+                System.out.println("Disconnected");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+Client.java
+import java.io.*;
+import java.net.*;
+
+class swclient {
+    public static void main(String args[]){
+        try{
+            Socket soc = new Socket("localhost", 1234); 
+            System.out.println("Waiting...");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+            PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
+
+            for (int i = 0; i < 10; i++){
+                out.println("Packet" + i); // Send a message to the server
+                System.out.println("Packet" + i);
+                System.out.println("Response: " + in.readLine());
+            }
+
+            soc.close();
+            System.out.println("Disconnected");
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+4) b)
+STOP AND WAIT
+
+Server2
+
+import java.io.*;
+import java.net.*;
+
+public class stserver {
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(1234);
+            System.out.println("Server is running...");
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clientSocket);
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+                String receivedData;
+                while ((receivedData = in.readLine()) != null) {
+                    System.out.println("Received from client: " + receivedData);
+                    out.println("ACK");
+                }
+
+                clientSocket.close();
+                System.out.println("Client disconnected.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+Client2
+
+import java.io.*;
+import java.net.*;
+
+public class stclient {
+    public static void main(String[] args) {
+        try {
+            Socket socket = new Socket("localhost", 1234);
+            System.out.println("Connected to server.");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            for (int i = 0; i < 10; i++) {
+                out.println("Packet " + i);
+                System.out.println("Sent to server: Packet " + i);
+                String response = in.readLine();
+                System.out.println("Response from server: " + response);
+            }
+
+            socket.close();
+            System.out.println("Connection closed.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+5 a)PING
+
+Client Side:
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+class client {
+    public static void main(String[] args) throws Exception {
+        String str;
+        int c = 0;
+        long t1, t2;
+        Socket s = new Socket("localhost", 5555);
+        DataInputStream dis = new DataInputStream(s.getInputStream());
+        PrintStream out = new PrintStream(s.getOutputStream());
+        while (c < 4) {
+            t1 = System.currentTimeMillis();
+            str = "Welcome to networks";
+            out.println(str);
+            System.out.println(dis.readLine());
+            t2 = System.currentTimeMillis();
+            System.out.println("TLL : " + (t2 - t1) + "ms");
+            c++;
+        }
+        s.close();
+    }
+}
+
+Server Side:
+
+import java.io.*;
+import java.net.*;
+
+class server {
+    public static void main(String[] args) throws Exception {
+        ServerSocket ss = new ServerSocket(5555);
+        Socket s = ss.accept();
+        int c = 0;
+
+        while (c < 4) {
+            DataInputStream dis = new DataInputStream(s.getInputStream());
+            PrintStream out = new PrintStream(s.getOutputStream());
+            String str = dis.readLine();
+            out.println("Reply from " + InetAddress.getLocalHost() + " Length " + str.length());
+            c++;
+        }
+
+        s.close();
+        ss.close();
+    }
+}
+
+5 b)TraceRoute
+
+import java.io.*;
+import java.net.*;
+class Traceroute
+{
+    public static void main(String args[])
+    {
+        try
+        {
+            String str;
+            System.out.print(" Enter the IP Address to be Traced : ");
+            BufferedReader buf1=new BufferedReader(new InputStreamReader(System.in));
+            String ip=buf1.readLine();
+            Runtime H=Runtime.getRuntime();
+            Process p=H.exec("traceroute " + ip);
+            InputStream in=p.getInputStream();
+            BufferedReader buf2=new BufferedReader(new InputStreamReader(in));
+            while((str=buf2.readLine())!=null)
+            {
+                System.out.println(" " + str);
+            }
+        } catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+7)
+
+Client
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class sender {
+    public static void main(String[] args) throws IOException {
+    	Scanner s = new Scanner(System.in);
+        Socket socket = new Socket("localhost", 5555);
+        String str = s.nextLine();
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        out.println(str);
+        socket.close();
+    }
+}
+
+server
+
+import java.io.*;
+import java.net.*;
+
+public class receiver {
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(5555);
+        Socket socket = serverSocket.accept();
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        String message = in.readLine();
+        System.out.println("Received: " + message);
+        socket.close();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+8) Client:
+
+import java.io.*;
+import java.net.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+
+public class Client {
+    public static void main(String args[]) throws Exception {
+        Socket soc;
+        BufferedImage img = null;
+        soc = new Socket("localhost", 4000);
+        System.out.println("Client is running.");
+
+        try {
+            System.out.println("Reading image from disk.");
+            img = ImageIO.read(new File("C:\\Users\\sugit\\OneDrive\\Desktop\\sonalika.jpg"));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img, "jpg", baos);
+            baos.flush();
+            byte[] bytes = baos.toByteArray();
+            baos.close();
+            System.out.println("Sending image to server.");
+
+            OutputStream out = soc.getOutputStream();
+            DataOutputStream dos = new DataOutputStream(out);
+            dos.writeInt(bytes.length);
+            dos.write(bytes, 0, bytes.length);
+            System.out.println("Image sent to server.");
+
+            // Receive response from server (optional)
+            InputStream in = soc.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String response = br.readLine();
+            System.out.println("Server response: " + response);
+
+            dos.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            soc.close();
+        }
+    }
+}
+
+Server: 
+
+import java.io.*;
+import java.net.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import javax.swing.*;
+
+public class Server {
+    public static void main(String args[]) throws Exception {
+        ServerSocket server = null;
+        Socket socket;
+        server = new ServerSocket(4000);
+        System.out.println("Server Waiting for image");
+
+        while (true) {
+            socket = server.accept();
+            System.out.println("Client connected.");
+
+            // Receive image from client
+            InputStream in = socket.getInputStream();
+            DataInputStream dis = new DataInputStream(in);
+            int len = dis.readInt();
+            System.out.println("Image Size: " + len / 1024 + "KB");
+            byte[] data = new byte[len];
+            dis.readFully(data);
+
+            // Convert byte array to image
+            ByteArrayInputStream ian = new ByteArrayInputStream(data);
+            BufferedImage bImage = ImageIO.read(ian);
+
+            // Display image in a JFrame (optional)
+            JFrame f = new JFrame("Server");
+            ImageIcon icon = new ImageIcon(bImage);
+            JLabel label = new JLabel(icon);
+            f.add(label);
+            f.pack();
+            f.setVisible(true);
+
+            // Send response to client (optional)
+            OutputStream out = socket.getOutputStream();
+            PrintWriter pw = new PrintWriter(out, true);
+            pw.println("Image received successfully.");
+
+            out.close();
+            dis.close();
+            in.close();
+            socket.close();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+9)
+Subnetting:
+import java.util.Scanner;
+
+class Subnet {
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("IP address: ");
+        String ip = sc.nextLine();
+        String bip = "";
+
+        for (String part : ip.split("\\.")) {
+            bip += String.format("%8s", Integer.toBinaryString(Integer.parseInt(part))).replace(' ', '0');
+        }
+
+        System.out.println("Binary Format: " + bip);
+        System.out.print("Enter the number of addresses in each subnet: ");
+        int n = sc.nextInt();
+
+        int bits = (int) Math.ceil(Math.log(n) / Math.log(2));
+        int mask = 32 - bits;
+        System.out.println("Subnet mask = " + mask);
+
+        String fip = bip.substring(0, 32 - bits) + "0".repeat(bits);
+        String lip = bip.substring(0, 32 - bits) + "1".repeat(bits);
+
+        System.out.print("Network address is = ");
+        printAddress(fip);
+        System.out.print("Broadcast address is = ");
+        printAddress(lip);
+    }
+
+    static void printAddress(String bin) {
+        for (int i = 0; i < 4; i++) {
+            System.out.print(Integer.parseInt(bin.substring(8 * i, 8 * i + 8), 2));
+            if (i != 3) System.out.print(".");
+        }
+        System.out.println();
+    }
+}
